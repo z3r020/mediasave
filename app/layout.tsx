@@ -1,8 +1,4 @@
-  "free file converter",
-],
-verification: {
-  google: "m1X44tBm395liU-L9IerpIPJceWLIPEqLAA6aS8LAc4",
-},import "./globals.css";
+import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import type { Metadata } from "next";
@@ -21,18 +17,14 @@ export const metadata: Metadata = {
     "image converter",
     "video compressor",
     "free file converter",
-],
-verification: {
-  google: "m1X44tBm395liU-L9IerpIPJceWLIPEqLAA6aS8LAc4",
-},  "free file converter",
-verification: {
-  google: "m1X44tBm395liU-b9IerpIPJceWLIPEqLAA6aS8LAc4",
-},
   ],
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL ||
       "https://mediasave-omega.vercel.app"
   ),
+  verification: {
+    google: "m1X44tBm395liU-b9IerpIPJceWLIPEqLAA6aS8LAc4",
+  },
   openGraph: {
     title: "MediaSave - Free Online Media Tools",
     description:
