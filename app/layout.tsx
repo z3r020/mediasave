@@ -17,6 +17,9 @@ export const metadata: Metadata = {
     "image converter",
     "video compressor",
     "free file converter",
+verification: {
+  google: "m1X44tBm395liU-b9IerpIPJceWLIPEqLAA6aS8LAc4",
+},
   ],
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL ||
