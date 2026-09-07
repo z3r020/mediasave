@@ -1,0 +1,3 @@
+import UploadBox from "@/components/UploadBox"; import AdSlot from "@/components/AdSlot";
+export const metadata={title:"Video Converter"};
+export default function Page(){return <div className="max-w-3xl mx-auto px-4 py-14"><h1 className="text-4xl font-black">Video Converter</h1><p className="mt-3 text-slate-400">Convert your own video files to popular formats.</p><AdSlot/><UploadBox endpoint="/api/convert-video" formats={["mp4","webm","mov"]} accept="video/*"/></div>}

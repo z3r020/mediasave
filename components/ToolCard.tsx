@@ -1,0 +1,2 @@
+import Link from "next/link";
+export default function ToolCard({href,icon,title,desc}:{href:string,icon:string,title:string,desc:string}){return <Link href={href} className="group rounded-3xl border border-white/10 bg-white/[.03] p-6 hover:bg-white/[.06] hover:border-cyan-400/30 transition"><div className="text-3xl">{icon}</div><h3 className="mt-4 font-bold text-lg group-hover:text-cyan-300">{title}</h3><p className="mt-2 text-sm leading-6 text-slate-400">{desc}</p></Link>}

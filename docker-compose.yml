@@ -1,0 +1,12 @@
+services:
+  mediasave:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - MAX_UPLOAD_MB=100
+      - NEXT_PUBLIC_SITE_URL=https://example.com
+    restart: unless-stopped
+    volumes:
+      - ./tmp:/app/tmp

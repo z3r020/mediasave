@@ -1,0 +1,1 @@
+export default function AdSlot({label="Advertisement"}:{label?:string}){return <div className="my-8 rounded-2xl border border-dashed border-white/10 bg-white/[.02] min-h-24 flex items-center justify-center text-xs text-slate-500">{label}<span className="sr-only"> Adsterra placement</span></div>}

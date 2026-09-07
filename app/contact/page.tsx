@@ -1,0 +1,1 @@
+export const metadata={title:"Contact"}; export default function Page(){return <div className="max-w-3xl mx-auto px-4 py-14"><h1 className="text-4xl font-black">Contact</h1><p className="mt-6 text-slate-300">Replace this page with your support email and business contact details before launch.</p></div>}

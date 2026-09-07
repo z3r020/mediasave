@@ -1,0 +1,2 @@
+import Link from "next/link";
+export default function Footer(){return <footer className="border-t border-white/10 mt-20"><div className="max-w-6xl mx-auto px-4 py-10 flex flex-col sm:flex-row justify-between gap-5 text-sm text-slate-400"><p>© {new Date().getFullYear()} MediaSave. Use only files you own or have permission to process.</p><div className="flex gap-4"><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/dmca">DMCA</Link><Link href="/contact">Contact</Link></div></div></footer>}
