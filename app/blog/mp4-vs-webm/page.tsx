@@ -123,6 +123,45 @@ export default function Page() {
             .
           </p>
         </section>
+
+        <section>
+          <h2 className="text-2xl font-bold text-white">
+            Frequently Asked Questions
+          </h2>
+
+          <div className="mt-5 space-y-5">
+            <div>
+              <h3 className="font-bold text-white">
+                Is MP4 better than WEBM?
+              </h3>
+              <p className="mt-2">
+                Neither format is always better. MP4 is usually preferable
+                when broad compatibility is important, while WEBM is useful
+                for many modern web-based workflows.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="font-bold text-white">
+                Which format should I use for general sharing?
+              </h3>
+              <p className="mt-2">
+                MP4 is generally a practical choice when you need a video to
+                work across many devices and applications.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="font-bold text-white">
+                Can I convert MP4 to WEBM?
+              </h3>
+              <p className="mt-2">
+                Yes. MediaSave's video converter supports conversion between
+                supported video formats for your own files.
+              </p>
+            </div>
+          </div>
+        </section>
       </div>
     </article>
   );

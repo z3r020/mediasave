@@ -71,6 +71,44 @@ export default function Page() {
             workflows is more important than web optimization.
           </p>
         </section>
+
+        <section>
+          <h2 className="text-2xl font-bold text-white">
+            Frequently Asked Questions
+          </h2>
+
+          <div className="mt-5 space-y-5">
+            <div>
+              <h3 className="font-bold text-white">
+                Why convert JPG to WEBP?
+              </h3>
+              <p className="mt-2">
+                WEBP can be useful for websites because it is designed for
+                efficient image delivery and can often produce smaller files.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="font-bold text-white">
+                Can I convert JPG to WEBP online?
+              </h3>
+              <p className="mt-2">
+                Yes. You can process your own JPG images with an online image
+                converter and choose WEBP as the output format.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="font-bold text-white">
+                Should I keep the original JPG?
+              </h3>
+              <p className="mt-2">
+                Keeping the original is recommended so you always have a
+                source copy if you need to create another version later.
+              </p>
+            </div>
+          </div>
+        </section>
       </div>
     </article>
   );

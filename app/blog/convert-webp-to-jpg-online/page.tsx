@@ -73,6 +73,45 @@ export default function Page() {
             priority.
           </p>
         </section>
+
+        <section>
+          <h2 className="text-2xl font-bold text-white">
+            Frequently Asked Questions
+          </h2>
+
+          <div className="mt-5 space-y-5">
+            <div>
+              <h3 className="font-bold text-white">
+                Can I convert WEBP to JPG online?
+              </h3>
+              <p className="mt-2">
+                Yes. You can use an online image converter to process your own
+                WEBP image and save it as JPG.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="font-bold text-white">
+                Why convert WEBP to JPG?
+              </h3>
+              <p className="mt-2">
+                JPG has very broad compatibility and can be useful when an
+                application or website does not accept WEBP.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="font-bold text-white">
+                Does converting WEBP to JPG improve image quality?
+              </h3>
+              <p className="mt-2">
+                Conversion does not automatically improve quality. The result
+                depends on the source image and the settings used during
+                conversion.
+              </p>
+            </div>
+          </div>
+        </section>
       </div>
     </article>
   );
