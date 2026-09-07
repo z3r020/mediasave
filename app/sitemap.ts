@@ -12,9 +12,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/image-converter",
     "/compress-video",
     "/blog",
+
     "/blog/convert-video-online",
     "/blog/compress-video",
     "/blog/webp-vs-jpg",
+
+    "/blog/convert-webp-to-jpg-online",
+    "/blog/convert-jpg-to-webp",
+    "/blog/reduce-video-file-size",
+    "/blog/mp4-vs-webm",
+    "/blog/convert-wav-to-mp3",
+    "/blog/jpg-vs-png",
+
     "/privacy",
     "/terms",
     "/contact",
