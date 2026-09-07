@@ -71,6 +71,19 @@ export default function Page() {
             want to preserve the source audio for future production work.
           </p>
         </section>
+
+        <section className="mt-10">
+          <h2 className="text-2xl font-bold text-white">
+            Related Articles
+          </h2>
+
+          <ul className="mt-5 space-y-3">
+            <li><a href="/audio-converter" className="text-sky-400 hover:underline">Free Online Audio Converter</a></li>
+            <li><a href="/blog/convert-video-online" className="text-sky-400 hover:underline">How to Convert Video Online</a></li>
+            <li><a href="/blog/compress-video" className="text-sky-400 hover:underline">How to Compress Video Online</a></li>
+          </ul>
+        </section>
+
       </div>
     </article>
   );

@@ -162,6 +162,20 @@ export default function Page() {
             </div>
           </div>
         </section>
+
+        <section className="mt-10">
+          <h2 className="text-2xl font-bold text-white">
+            Related Articles
+          </h2>
+
+          <ul className="mt-5 space-y-3">
+            <li><a href="/blog/convert-video-online" className="text-sky-400 hover:underline">How to Convert Video Online</a></li>
+            <li><a href="/blog/compress-video" className="text-sky-400 hover:underline">How to Compress Video Online</a></li>
+            <li><a href="/blog/reduce-video-file-size" className="text-sky-400 hover:underline">How to Reduce Video File Size</a></li>
+            <li><a href="/video-downloader" className="text-sky-400 hover:underline">Free Online Video Converter</a></li>
+          </ul>
+        </section>
+
       </div>
     </article>
   );

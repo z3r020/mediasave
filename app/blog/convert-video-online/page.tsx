@@ -84,6 +84,20 @@ export default function Page() {
             <li>Avoid unnecessary repeated conversions because quality can be lost.</li>
           </ul>
         </section>
+
+        <section className="mt-10">
+          <h2 className="text-2xl font-bold text-white">
+            Related Articles
+          </h2>
+
+          <ul className="mt-5 space-y-3">
+            <li><a href="/blog/compress-video" className="text-sky-400 hover:underline">How to Compress Video Online</a></li>
+            <li><a href="/blog/reduce-video-file-size" className="text-sky-400 hover:underline">How to Reduce Video File Size</a></li>
+            <li><a href="/blog/mp4-vs-webm" className="text-sky-400 hover:underline">MP4 vs WEBM: Which Video Format Is Better?</a></li>
+            <li><a href="/video-downloader" className="text-sky-400 hover:underline">Free Online Video Converter</a></li>
+          </ul>
+        </section>
+
       </div>
     </article>
   );

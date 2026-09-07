@@ -112,6 +112,20 @@ export default function Page() {
             </div>
           </div>
         </section>
+
+        <section className="mt-10">
+          <h2 className="text-2xl font-bold text-white">
+            Related Articles
+          </h2>
+
+          <ul className="mt-5 space-y-3">
+            <li><a href="/blog/webp-vs-jpg" className="text-sky-400 hover:underline">WEBP vs JPG: Which Image Format Is Better?</a></li>
+            <li><a href="/blog/convert-jpg-to-webp" className="text-sky-400 hover:underline">How to Convert JPG to WEBP</a></li>
+            <li><a href="/blog/jpg-vs-png" className="text-sky-400 hover:underline">JPG vs PNG: Which Image Format Should You Use?</a></li>
+            <li><a href="/image-converter" className="text-sky-400 hover:underline">Free Online Image Converter</a></li>
+          </ul>
+        </section>
+
       </div>
     </article>
   );

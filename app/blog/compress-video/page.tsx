@@ -83,6 +83,20 @@ export default function Page() {
             <li>Check the final video before deleting the original.</li>
           </ul>
         </section>
+
+        <section className="mt-10">
+          <h2 className="text-2xl font-bold text-white">
+            Related Articles
+          </h2>
+
+          <ul className="mt-5 space-y-3">
+            <li><a href="/blog/convert-video-online" className="text-sky-400 hover:underline">How to Convert Video Online</a></li>
+            <li><a href="/blog/reduce-video-file-size" className="text-sky-400 hover:underline">How to Reduce Video File Size</a></li>
+            <li><a href="/blog/mp4-vs-webm" className="text-sky-400 hover:underline">MP4 vs WEBM: Which Video Format Is Better?</a></li>
+            <li><a href="/compress-video" className="text-sky-400 hover:underline">Free Online Video Compressor</a></li>
+          </ul>
+        </section>
+
       </div>
     </article>
   );
