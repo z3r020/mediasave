@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import ArticleSchema from "@/components/ArticleSchema";
+import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 
 export const metadata: Metadata = {
   title: "How to Compress Video Without Losing Too Much Quality",
@@ -12,7 +14,20 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return (
-    <article className="max-w-3xl mx-auto px-4 py-14">
+    <>
+      <ArticleSchema
+        title="How to Compress Video Online"
+        description={metadata.description as string}
+        url="https://mediasave-omega.vercel.app/blog/compress-video"
+        datePublished="2026-09-07"
+        dateModified="2026-09-08"
+      />
+      <BreadcrumbSchema
+        title="How to Compress Video Online"
+        url="https://mediasave-omega.vercel.app/blog/compress-video"
+      />
+
+      <article className="max-w-3xl mx-auto px-4 py-14">
       <Link href="/blog" className="text-sm text-slate-400 hover:text-white">
         ← Back to Blog
       </Link>
@@ -98,6 +113,7 @@ export default function Page() {
         </section>
 
       </div>
-    </article>
+      </article>
+    </>
   );
 }
