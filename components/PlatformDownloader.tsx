@@ -75,7 +75,7 @@ export default function PlatformDownloader({
         </p>
       </section>
 
-      <section className="mx-auto mt-10 max-w-2xl rounded-2xl border bg-white p-6 shadow-sm">
+      <section className="mx-auto mt-10 max-w-2xl rounded-3xl border border-white/10 bg-black/20 p-6 shadow-2xl backdrop-blur-xl">
         <label
           htmlFor="video-url"
           className="mb-2 block text-sm font-semibold"
@@ -93,13 +93,13 @@ export default function PlatformDownloader({
             setValid(null);
           }}
           placeholder={placeholder}
-          className="w-full rounded-xl border px-4 py-3 outline-none focus:ring-2"
+          className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-inherit outline-none backdrop-blur-md placeholder:text-gray-400 focus:border-white/20 focus:ring-2"
         />
 
         <button
           type="button"
           onClick={checkUrl}
-          className="mt-4 w-full rounded-xl px-5 py-3 font-semibold shadow-sm"
+          className="mt-4 w-full rounded-xl border border-white/10 bg-white/10 px-5 py-3 font-semibold shadow-lg backdrop-blur-md transition hover:bg-white/15 active:scale-[0.99]"
         >
           Check URL
         </button>
@@ -117,7 +117,7 @@ export default function PlatformDownloader({
         )}
       </section>
 
-      <section className="mx-auto mt-10 max-w-3xl">
+      <section className="mx-auto mt-10 max-w-3xl rounded-3xl border border-white/10 bg-black/10 p-6 backdrop-blur-md">
         <h2 className="text-2xl font-bold">
           How to use the {platform} video downloader
         </h2>
@@ -133,7 +133,7 @@ export default function PlatformDownloader({
         </ol>
       </section>
 
-      <section className="mx-auto mt-10 max-w-3xl">
+      <section className="mx-auto mt-10 max-w-3xl rounded-3xl border border-white/10 bg-black/10 p-6 backdrop-blur-md">
         <h2 className="text-2xl font-bold">Frequently Asked Questions</h2>
 
         <div className="mt-5 space-y-5">
