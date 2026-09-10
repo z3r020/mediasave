@@ -1,8 +1,8 @@
 export const runtime = "nodejs";
-export const maxDuration = 30;
+export const maxDuration = 20;
 
 const YOINKU_API = "https://yoinku.com/api/v1";
-const REQUEST_TIMEOUT = 15000;
+const REQUEST_TIMEOUT = 8000;
 
 function isSupportedUrl(rawUrl: string) {
   try {
@@ -44,32 +44,6 @@ async function fetchWithTimeout(
   }
 }
 
-async function getDownload(
-  videoUrl: string,
-  formatId: string,
-  apiKey: string
-) {
-  const endpoint =
-    `${YOINKU_API}/download` +
-    `?url=${encodeURIComponent(videoUrl)}` +
-    `&format=${encodeURIComponent(formatId)}`;
-
-  const response = await fetchWithTimeout(endpoint, {
-    headers: {
-      "x-api-key": apiKey,
-      Accept: "application/json",
-    },
-  });
-
-  const data = await response.json().catch(() => null);
-
-  if (!response.ok || !data?.ok || !data?.url) {
-    return null;
-  }
-
-  return data;
-}
-
 export async function POST(request: Request) {
   try {
     const apiKey = process.env.YOINKU_API_KEY;
@@ -105,62 +79,78 @@ export async function POST(request: Request) {
     }
 
     /*
-     * Jika format diminta, langsung buat URL download.
+     * DOWNLOAD MODE
+     *
+     * Hanya dijalankan setelah user memilih resolusi.
      */
     if (typeof formatId === "string" && formatId.trim()) {
-      const downloadData = await getDownload(
-        videoUrl,
-        formatId,
-        apiKey
-      );
+      const endpoint =
+        `${YOINKU_API}/download` +
+        `?url=${encodeURIComponent(videoUrl)}` +
+        `&format=${encodeURIComponent(formatId)}`;
 
-      if (!downloadData?.url) {
+      const response = await fetchWithTimeout(endpoint, {
+        headers: {
+          "x-api-key": apiKey,
+          Accept: "application/json",
+        },
+      });
+
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok || !data?.ok || !data?.url) {
         return Response.json(
-          { error: "Format tersebut tidak tersedia." },
-          { status: 422 }
+          {
+            error:
+              data?.error?.message ||
+              "Format tersebut tidak tersedia.",
+          },
+          { status: response.status || 422 }
         );
       }
 
       return Response.json({
         ok: true,
-        downloadUrl: downloadData.url,
+        downloadUrl: data.url,
         filename:
-          downloadData.filename ||
-          "mediasave-video.mp4",
+          data.filename || "mediasave-video.mp4",
       });
     }
 
     /*
-     * Tanpa format = ambil informasi video.
-     * Digunakan untuk preview dan daftar resolusi.
+     * PREVIEW MODE
+     *
+     * Satu request /info untuk mendapatkan:
+     * - thumbnail
+     * - judul
+     * - platform
+     * - resolusi
      */
-    const infoUrl =
+    const endpoint =
       `${YOINKU_API}/info?url=${encodeURIComponent(videoUrl)}`;
 
-    const response = await fetchWithTimeout(infoUrl, {
+    const response = await fetchWithTimeout(endpoint, {
       headers: {
         "x-api-key": apiKey,
         Accept: "application/json",
       },
     });
 
-    const info = await response.json().catch(() => null);
+    const data = await response.json().catch(() => null);
 
-    if (!response.ok || !info?.ok || !info?.data) {
-      console.error("YOINKU_INFO_ERROR", info);
-
+    if (!response.ok || !data?.ok || !data?.data) {
       return Response.json(
         {
           error:
-            info?.error?.message ||
-            "Video tidak dapat dianalisis. Pastikan URL publik dan valid.",
+            data?.error?.message ||
+            "Video tidak dapat dianalisis.",
         },
         { status: response.status || 422 }
       );
     }
 
-    const formats = Array.isArray(info.data.formats)
-      ? info.data.formats
+    const formats = Array.isArray(data.data.formats)
+      ? data.data.formats
       : [];
 
     const videoFormats = formats
@@ -179,18 +169,17 @@ export async function POST(request: Request) {
     const uniqueFormats = videoFormats.filter(
       (format: any, index: number, array: any[]) =>
         array.findIndex(
-          (item: any) =>
-            item.id === format.id
+          (item: any) => item.id === format.id
         ) === index
     );
 
     return Response.json({
       ok: true,
-      platform: info.data.platform,
-      title: info.data.title || "Video",
-      thumbnail: info.data.thumbnailUrl || null,
+      platform: data.data.platform || "",
+      title: data.data.title || "Video",
+      thumbnail: data.data.thumbnailUrl || null,
       durationSeconds:
-        info.data.durationSeconds || null,
+        data.data.durationSeconds || null,
       formats: uniqueFormats.map((format: any) => ({
         id: format.id,
         quality:
@@ -199,8 +188,7 @@ export async function POST(request: Request) {
             ? `${format.height}p`
             : "Video"),
         height: format.height || null,
-        container:
-          format.container || "mp4",
+        container: format.container || "mp4",
       })),
     });
   } catch (error) {
@@ -211,7 +199,7 @@ export async function POST(request: Request) {
       return Response.json(
         {
           error:
-            "Proses terlalu lama. Silakan coba lagi.",
+            "Server membutuhkan waktu terlalu lama. Silakan coba lagi.",
         },
         { status: 504 }
       );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Format = {
   id: string;
@@ -17,6 +17,9 @@ type Result = {
   formats?: Format[];
 };
 
+const CACHE_KEY = "mediasave-video-preview";
+const CACHE_TIME = 5 * 60 * 1000;
+
 export default function UrlVideoDownloader() {
   const [url, setUrl] = useState("");
   const [error, setError] = useState("");
@@ -25,6 +28,33 @@ export default function UrlVideoDownloader() {
   const [result, setResult] = useState<Result | null>(null);
   const [selectedFormat, setSelectedFormat] =
     useState("");
+
+  useEffect(() => {
+    try {
+      const cached = sessionStorage.getItem(CACHE_KEY);
+
+      if (!cached) return;
+
+      const parsed = JSON.parse(cached);
+
+      if (
+        Date.now() - parsed.time < CACHE_TIME &&
+        parsed.url &&
+        parsed.result
+      ) {
+        setUrl(parsed.url);
+        setResult(parsed.result);
+
+        if (parsed.result.formats?.length) {
+          setSelectedFormat(
+            parsed.result.formats[0].id
+          );
+        }
+      }
+    } catch {
+      // Ignore invalid cache
+    }
+  }, []);
 
   async function analyzeVideo() {
     setError("");
@@ -38,11 +68,52 @@ export default function UrlVideoDownloader() {
       return;
     }
 
+    let parsedUrl: URL;
+
     try {
-      new URL(videoUrl);
+      parsedUrl = new URL(videoUrl);
     } catch {
       setError("URL tidak valid.");
       return;
+    }
+
+    if (
+      parsedUrl.protocol !== "http:" &&
+      parsedUrl.protocol !== "https:"
+    ) {
+      setError("URL harus menggunakan HTTP atau HTTPS.");
+      return;
+    }
+
+    /*
+     * Cache:
+     * URL yang sama dalam 5 menit tidak perlu
+     * meminta preview ulang ke API.
+     */
+    try {
+      const cached = sessionStorage.getItem(CACHE_KEY);
+
+      if (cached) {
+        const parsed = JSON.parse(cached);
+
+        if (
+          parsed.url === videoUrl &&
+          Date.now() - parsed.time < CACHE_TIME &&
+          parsed.result
+        ) {
+          setResult(parsed.result);
+
+          if (parsed.result.formats?.length) {
+            setSelectedFormat(
+              parsed.result.formats[0].id
+            );
+          }
+
+          return;
+        }
+      }
+    } catch {
+      // Continue normally
     }
 
     setLoading(true);
@@ -78,6 +149,19 @@ export default function UrlVideoDownloader() {
         setSelectedFormat(
           data.formats[0].id
         );
+      }
+
+      try {
+        sessionStorage.setItem(
+          CACHE_KEY,
+          JSON.stringify({
+            url: videoUrl,
+            time: Date.now(),
+            result: data,
+          })
+        );
+      } catch {
+        // Ignore storage errors
       }
     } catch (err) {
       setError(
@@ -146,7 +230,11 @@ export default function UrlVideoDownloader() {
           <input
             type="url"
             value={url}
-            onChange={(e) => setUrl(e.target.value)}
+            onChange={(e) => {
+              setUrl(e.target.value);
+              setResult(null);
+              setError("");
+            }}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 analyzeVideo();
@@ -163,10 +251,17 @@ export default function UrlVideoDownloader() {
             className="rounded-2xl bg-cyan-400 px-6 py-4 font-bold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading
-              ? "Analyzing..."
+              ? "Searching..."
               : "Get Video"}
           </button>
         </div>
+
+        {loading && (
+          <div className="mt-4 flex items-center gap-3 rounded-2xl border border-cyan-400/10 bg-cyan-400/[0.04] px-4 py-3 text-sm text-slate-300">
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-600 border-t-cyan-400" />
+            Mencari video dan resolusi...
+          </div>
+        )}
 
         {error && (
           <div className="mt-4 rounded-2xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm text-red-300">
@@ -186,6 +281,7 @@ export default function UrlVideoDownloader() {
                     "Video thumbnail"
                   }
                   className="max-h-96 w-full object-cover"
+                  loading="eager"
                 />
               </div>
             )}
@@ -266,31 +362,6 @@ export default function UrlVideoDownloader() {
           punya izin untuk mengunduh.
         </p>
       </div>
-
-      <div className="mt-6 rounded-3xl border border-white/10 bg-white/[0.025] p-6 backdrop-blur-xl">
-        <h2 className="text-lg font-bold">
-          Cara menggunakan
-        </h2>
-
-        <ol className="mt-4 space-y-3 text-sm leading-6 text-slate-400">
-          <li>
-            1. Salin URL video.
-          </li>
-          <li>
-            2. Tempel URL di kotak di atas.
-          </li>
-          <li>
-            3. Tekan Get Video.
-          </li>
-          <li>
-            4. Pilih resolusi yang tersedia.
-          </li>
-          <li>
-            5. Tekan Download Video.
-          </li>
-        </ol>
-      </div>
     </div>
   );
 }
-
