@@ -44,18 +44,17 @@ async function fetchWithTimeout(
   }
 }
 
-async function createDownloadUrl(
+async function getDownload(
   videoUrl: string,
   formatId: string,
   apiKey: string
 ) {
-  const downloadUrl =
+  const endpoint =
     `${YOINKU_API}/download` +
     `?url=${encodeURIComponent(videoUrl)}` +
     `&format=${encodeURIComponent(formatId)}`;
 
-  const response = await fetchWithTimeout(downloadUrl, {
-    method: "GET",
+  const response = await fetchWithTimeout(endpoint, {
     headers: {
       "x-api-key": apiKey,
       Accept: "application/json",
@@ -76,8 +75,6 @@ export async function POST(request: Request) {
     const apiKey = process.env.YOINKU_API_KEY;
 
     if (!apiKey) {
-      console.error("YOINKU_API_KEY is missing");
-
       return Response.json(
         { error: "Downloader API belum dikonfigurasi." },
         { status: 500 }
@@ -86,6 +83,7 @@ export async function POST(request: Request) {
 
     const body = await request.json().catch(() => null);
     const rawUrl = body?.url;
+    const formatId = body?.format;
 
     if (typeof rawUrl !== "string" || !rawUrl.trim()) {
       return Response.json(
@@ -107,54 +105,48 @@ export async function POST(request: Request) {
     }
 
     /*
-     * FAST PATH
-     *
-     * Coba langsung 720p.
-     * Jika berhasil, kita tidak perlu memanggil /info terlebih dahulu.
+     * Jika format diminta, langsung buat URL download.
      */
-    const direct720 = await createDownloadUrl(
-      videoUrl,
-      "v-720",
-      apiKey
-    );
+    if (typeof formatId === "string" && formatId.trim()) {
+      const downloadData = await getDownload(
+        videoUrl,
+        formatId,
+        apiKey
+      );
 
-    if (direct720?.url) {
+      if (!downloadData?.url) {
+        return Response.json(
+          { error: "Format tersebut tidak tersedia." },
+          { status: 422 }
+        );
+      }
+
       return Response.json({
         ok: true,
-        platform: "social",
-        title: "Video",
-        thumbnail: null,
-        downloadUrl: direct720.url,
+        downloadUrl: downloadData.url,
         filename:
-          direct720.filename || "mediasave-video.mp4",
-        format: {
-          id: "v-720",
-          quality: "720p",
-          height: 720,
-          container: "mp4",
-        },
+          downloadData.filename ||
+          "mediasave-video.mp4",
       });
     }
 
     /*
-     * FALLBACK
-     *
-     * Jika v-720 tidak tersedia, cari format yang benar-benar tersedia.
+     * Tanpa format = ambil informasi video.
+     * Digunakan untuk preview dan daftar resolusi.
      */
     const infoUrl =
       `${YOINKU_API}/info?url=${encodeURIComponent(videoUrl)}`;
 
-    const infoResponse = await fetchWithTimeout(infoUrl, {
-      method: "GET",
+    const response = await fetchWithTimeout(infoUrl, {
       headers: {
         "x-api-key": apiKey,
         Accept: "application/json",
       },
     });
 
-    const info = await infoResponse.json().catch(() => null);
+    const info = await response.json().catch(() => null);
 
-    if (!infoResponse.ok || !info?.ok || !info?.data) {
+    if (!response.ok || !info?.ok || !info?.data) {
       console.error("YOINKU_INFO_ERROR", info);
 
       return Response.json(
@@ -163,7 +155,7 @@ export async function POST(request: Request) {
             info?.error?.message ||
             "Video tidak dapat dianalisis. Pastikan URL publik dan valid.",
         },
-        { status: infoResponse.status || 422 }
+        { status: response.status || 422 }
       );
     }
 
@@ -175,7 +167,8 @@ export async function POST(request: Request) {
       .filter(
         (format: any) =>
           format?.kind === "video" &&
-          format?.hasVideo === true
+          format?.hasVideo === true &&
+          format?.id
       )
       .sort(
         (a: any, b: any) =>
@@ -183,52 +176,32 @@ export async function POST(request: Request) {
           Number(a?.height || 0)
       );
 
-    if (videoFormats.length === 0) {
-      return Response.json(
-        { error: "Tidak ada format video yang tersedia." },
-        { status: 422 }
-      );
-    }
-
-    const selected =
-      videoFormats.find(
-        (format: any) =>
-          Number(format.height) === 720
-      ) ||
-      videoFormats.find(
-        (format: any) =>
-          Number(format.height) < 720
-      ) ||
-      videoFormats[videoFormats.length - 1];
-
-    const downloadData = await createDownloadUrl(
-      videoUrl,
-      selected.id,
-      apiKey
+    const uniqueFormats = videoFormats.filter(
+      (format: any, index: number, array: any[]) =>
+        array.findIndex(
+          (item: any) =>
+            item.id === format.id
+        ) === index
     );
-
-    if (!downloadData?.url) {
-      return Response.json(
-        { error: "URL download tidak dapat dibuat." },
-        { status: 422 }
-      );
-    }
 
     return Response.json({
       ok: true,
       platform: info.data.platform,
       title: info.data.title || "Video",
       thumbnail: info.data.thumbnailUrl || null,
-      downloadUrl: downloadData.url,
-      filename:
-        downloadData.filename ||
-        "mediasave-video.mp4",
-      format: {
-        id: selected.id,
-        quality: selected.quality || null,
-        height: selected.height || null,
-        container: selected.container || "mp4",
-      },
+      durationSeconds:
+        info.data.durationSeconds || null,
+      formats: uniqueFormats.map((format: any) => ({
+        id: format.id,
+        quality:
+          format.quality ||
+          (format.height
+            ? `${format.height}p`
+            : "Video"),
+        height: format.height || null,
+        container:
+          format.container || "mp4",
+      })),
     });
   } catch (error) {
     if (
@@ -244,10 +217,7 @@ export async function POST(request: Request) {
       );
     }
 
-    console.error(
-      "SOCIAL_DOWNLOAD_ERROR",
-      error
-    );
+    console.error("SOCIAL_DOWNLOAD_ERROR", error);
 
     return Response.json(
       {
