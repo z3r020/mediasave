@@ -2,64 +2,87 @@
 
 import { useState } from "react";
 
+type Result = {
+  title?: string;
+  thumbnail?: string;
+  url?: string;
+  downloadUrl?: string;
+  platform?: string;
+};
+
 export default function UrlVideoDownloader() {
   const [url, setUrl] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<Result | null>(null);
 
   async function handleDownload() {
     setError("");
+    setResult(null);
 
-    if (!url.trim()) {
+    const videoUrl = url.trim();
+
+    if (!videoUrl) {
       setError("Masukkan URL video terlebih dahulu.");
       return;
     }
 
+    let parsedUrl: URL;
+
     try {
-      new URL(url);
+      parsedUrl = new URL(videoUrl);
     } catch {
       setError("URL tidak valid.");
+      return;
+    }
+
+    if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+      setError("URL harus menggunakan HTTP atau HTTPS.");
+      return;
+    }
+
+    const hostname = parsedUrl.hostname.toLowerCase();
+
+    const supported =
+      hostname.includes("youtube.com") ||
+      hostname.includes("youtu.be") ||
+      hostname.includes("tiktok.com") ||
+      hostname.includes("instagram.com");
+
+    if (!supported) {
+      setError(
+        "Saat ini MediaSave mendukung URL YouTube, TikTok, dan Instagram."
+      );
       return;
     }
 
     setLoading(true);
 
     try {
-      const response = await fetch(
-        `/api/download?url=${encodeURIComponent(url)}`
-      );
+      const response = await fetch("/api/social-download", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          url: videoUrl,
+        }),
+      });
+
+      const data = await response.json().catch(() => null);
 
       if (!response.ok) {
-        const data = await response.json().catch(() => null);
         throw new Error(
-          data?.error || "Video tidak dapat didownload."
+          data?.error || "Video tidak dapat diproses."
         );
       }
 
-      const blob = await response.blob();
-
-      const contentDisposition =
-        response.headers.get("content-disposition") || "";
-
-      const match = contentDisposition.match(/filename="([^"]+)"/);
-
-      const filename = match?.[1] || "mediasave-video.mp4";
-
-      const blobUrl = URL.createObjectURL(blob);
-
-      const a = document.createElement("a");
-      a.href = blobUrl;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+      setResult(data);
     } catch (err) {
       setError(
         err instanceof Error
           ? err.message
-          : "Gagal mendownload video."
+          : "Gagal memproses video."
       );
     } finally {
       setLoading(false);
@@ -74,7 +97,12 @@ export default function UrlVideoDownloader() {
             type="url"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://example.com/video.mp4"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleDownload();
+              }
+            }}
+            placeholder="Paste URL YouTube, TikTok, atau Instagram"
             className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-4 text-white outline-none placeholder:text-slate-500 focus:border-cyan-400/40"
           />
 
@@ -84,7 +112,7 @@ export default function UrlVideoDownloader() {
             disabled={loading}
             className="rounded-2xl bg-cyan-400 px-6 py-4 font-bold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {loading ? "Downloading..." : "Download"}
+            {loading ? "Processing..." : "Download"}
           </button>
         </div>
 
@@ -94,9 +122,39 @@ export default function UrlVideoDownloader() {
           </div>
         )}
 
+        {result && (
+          <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+            {result.thumbnail && (
+              <img
+                src={result.thumbnail}
+                alt={result.title || "Video thumbnail"}
+                className="mb-4 max-h-80 w-full rounded-2xl object-cover"
+              />
+            )}
+
+            {result.title && (
+              <h2 className="mb-4 font-semibold text-white">
+                {result.title}
+              </h2>
+            )}
+
+            {result.downloadUrl && (
+              <a
+                href={result.downloadUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block rounded-2xl bg-cyan-400 px-6 py-4 text-center font-bold text-slate-950 transition hover:bg-cyan-300"
+              >
+                Download Video
+              </a>
+            )}
+          </div>
+        )}
+
         <p className="mt-4 text-sm leading-6 text-slate-500">
-          Versi ini mendukung direct video URL yang dapat diakses publik.
-          Maksimum sekitar 4 MB pada deployment Vercel ini.
+          Mendukung video publik dari YouTube, TikTok, dan Instagram.
+          Video privat, dihapus, atau dibatasi platform mungkin tidak dapat
+          diproses.
         </p>
       </div>
 
@@ -104,14 +162,15 @@ export default function UrlVideoDownloader() {
         <h2 className="text-lg font-bold">Cara menggunakan</h2>
 
         <ol className="mt-4 space-y-3 text-sm leading-6 text-slate-400">
-          <li>1. Salin direct URL file video.</li>
+          <li>1. Salin URL video dari YouTube, TikTok, atau Instagram.</li>
           <li>2. Tempel URL di kotak di atas.</li>
           <li>3. Tekan Download.</li>
-          <li>4. File akan tersimpan ke perangkatmu.</li>
+          <li>4. Tunggu MediaSave memproses video.</li>
+          <li>5. Tekan Download Video.</li>
         </ol>
 
         <div className="mt-6 rounded-2xl border border-cyan-400/10 bg-cyan-400/[0.04] p-4 text-sm leading-6 text-slate-400">
-          Gunakan hanya video yang kamu miliki atau yang kamu memiliki izin
+          Gunakan hanya konten yang kamu miliki atau yang kamu memiliki izin
           untuk mengunduh dan memprosesnya.
         </div>
       </div>
