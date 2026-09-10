@@ -4,96 +4,116 @@ import { useState } from "react";
 
 export default function UrlVideoDownloader() {
   const [url, setUrl] = useState("");
-  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function checkUrl() {
-    const value = url.trim();
+  async function handleDownload() {
+    setError("");
 
-    if (!value) {
-      setMessage("Masukkan URL video terlebih dahulu.");
+    if (!url.trim()) {
+      setError("Masukkan URL video terlebih dahulu.");
       return;
     }
 
     try {
-      const parsed = new URL(value);
+      new URL(url);
+    } catch {
+      setError("URL tidak valid.");
+      return;
+    }
 
-      if (!["http:", "https:"].includes(parsed.protocol)) {
-        setMessage("URL harus menggunakan http atau https.");
-        return;
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        `/api/download?url=${encodeURIComponent(url)}`
+      );
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => null);
+        throw new Error(
+          data?.error || "Video tidak dapat didownload."
+        );
       }
 
-      setMessage(
-        "URL valid. MediaSave siap memproses URL yang didukung."
+      const blob = await response.blob();
+
+      const contentDisposition =
+        response.headers.get("content-disposition") || "";
+
+      const match = contentDisposition.match(/filename="([^"]+)"/);
+
+      const filename = match?.[1] || "mediasave-video.mp4";
+
+      const blobUrl = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Gagal mendownload video."
       );
-    } catch {
-      setMessage("URL tidak valid. Periksa kembali alamat video.");
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
     <div className="mx-auto max-w-3xl">
       <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-6 shadow-2xl backdrop-blur-xl sm:p-8">
-        <div className="mb-6">
-          <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl border border-cyan-400/20 bg-cyan-400/[0.07] text-cyan-300">
-            <svg
-              viewBox="0 0 24 24"
-              className="h-7 w-7 fill-none stroke-current stroke-[1.7]"
-            >
-              <path d="M12 3v11" />
-              <path d="m7 10 5 5 5-5" />
-              <path d="M5 19h14" />
-            </svg>
-          </div>
-
-          <h2 className="text-2xl font-bold tracking-tight">
-            Video Downloader
-          </h2>
-
-          <p className="mt-2 text-sm leading-6 text-slate-400">
-            Masukkan URL video untuk memeriksa apakah URL tersebut didukung.
-          </p>
-        </div>
-
-        <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="flex flex-col gap-4 sm:flex-row">
           <input
             type="url"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="Paste video URL here..."
-            className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none backdrop-blur-xl transition placeholder:text-slate-500 focus:border-cyan-400/40 focus:bg-white/[0.06]"
+            placeholder="https://example.com/video.mp4"
+            className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-4 text-white outline-none placeholder:text-slate-500 focus:border-cyan-400/40"
           />
 
           <button
-            onClick={checkUrl}
-            className="rounded-2xl border border-cyan-400/20 bg-cyan-400/10 px-6 py-3 text-sm font-semibold text-cyan-300 transition hover:border-cyan-400/40 hover:bg-cyan-400/15 hover:text-cyan-200"
+            type="button"
+            onClick={handleDownload}
+            disabled={loading}
+            className="rounded-2xl bg-cyan-400 px-6 py-4 font-bold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Check URL
+            {loading ? "Downloading..." : "Download"}
           </button>
         </div>
 
-        {message && (
-          <div className="mt-4 rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-slate-300">
-            {message}
+        {error && (
+          <div className="mt-4 rounded-2xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm text-red-300">
+            {error}
           </div>
         )}
 
-        <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.025] p-4">
-          <p className="text-xs leading-5 text-slate-500">
-            Only download or process videos that you own or have permission
-            to use. Platform restrictions and copyright rules may apply.
-          </p>
-        </div>
+        <p className="mt-4 text-sm leading-6 text-slate-500">
+          Versi ini mendukung direct video URL yang dapat diakses publik.
+          Maksimum sekitar 4 MB pada deployment Vercel ini.
+        </p>
       </div>
 
       <div className="mt-6 rounded-3xl border border-white/10 bg-white/[0.025] p-6 backdrop-blur-xl">
-        <h3 className="font-bold">How it works</h3>
+        <h2 className="text-lg font-bold">Cara menggunakan</h2>
 
         <ol className="mt-4 space-y-3 text-sm leading-6 text-slate-400">
-          <li>1. Copy the video URL.</li>
-          <li>2. Paste it into the box above.</li>
-          <li>3. Check whether the URL is supported.</li>
-          <li>4. Continue with an available download workflow.</li>
+          <li>1. Salin direct URL file video.</li>
+          <li>2. Tempel URL di kotak di atas.</li>
+          <li>3. Tekan Download.</li>
+          <li>4. File akan tersimpan ke perangkatmu.</li>
         </ol>
+
+        <div className="mt-6 rounded-2xl border border-cyan-400/10 bg-cyan-400/[0.04] p-4 text-sm leading-6 text-slate-400">
+          Gunakan hanya video yang kamu miliki atau yang kamu memiliki izin
+          untuk mengunduh dan memprosesnya.
+        </div>
       </div>
     </div>
   );
