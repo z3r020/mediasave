@@ -13,6 +13,16 @@ function ToolIcon({ icon }: { icon: string }) {
         </svg>
       );
 
+    case "video-download":
+        return (
+          <svg viewBox="0 0 24 24" className={common}>
+            <rect x="3" y="5" width="13" height="14" rx="3" />
+            <path d="m16 10 5-3v10l-5-3z" />
+            <path d="M9.5 9v6" />
+            <path d="m7 12 2.5 3 2.5-3" />
+          </svg>
+        );
+
     case "audio":
       return (
         <svg viewBox="0 0 24 24" className={common}>
