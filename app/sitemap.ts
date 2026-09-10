@@ -8,6 +8,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const routes = [
     "/",
     "/video-downloader",
+    "/video-url-downloader",
     "/audio-converter",
     "/image-converter",
     "/compress-video",
