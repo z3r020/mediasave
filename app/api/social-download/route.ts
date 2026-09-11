@@ -310,17 +310,48 @@ export async function POST(request: Request) {
             path.endsWith(".jpeg") ||
             path.endsWith(".png") ||
             path.endsWith(".webp") ||
-            path.endsWith(".gif")
+            path.endsWith(".gif") ||
+            path.includes(".jpg?") ||
+            path.includes(".jpeg?") ||
+            path.includes(".png?") ||
+            path.includes(".webp?")
           );
         } catch {
           return false;
         }
       };
 
+      const possibleThumbnails = [
+        meta.thumbnail,
+        meta.thumbnailUrl,
+        meta.cover,
+        meta.coverUrl,
+        data.thumbnail,
+        data.thumbnailUrl,
+        data.cover,
+        data.coverUrl,
+        imageMedia?.url,
+      ];
+
       const thumbnail =
-        (isImageUrl(meta.thumbnail) && meta.thumbnail) ||
-        (isImageUrl(data.thumbnail) && data.thumbnail) ||
-        (isImageUrl(imageMedia?.url) && imageMedia.url) ||
+        possibleThumbnails.find((value) => isImageUrl(value)) || null;
+
+      const title =
+        meta.title ||
+        meta.caption ||
+        meta.description ||
+        data.title ||
+        data.caption ||
+        data.description ||
+        (previewHost.includes("instagram")
+          ? "Instagram Video"
+          : "TikTok Video");
+
+      const durationSeconds =
+        meta.durationSeconds ??
+        meta.duration ??
+        data.durationSeconds ??
+        data.duration ??
         null;
 
       return Response.json({
@@ -330,18 +361,9 @@ export async function POST(request: Request) {
           (previewHost.includes("instagram")
             ? "instagram"
             : "tiktok"),
-        title:
-          meta.title ||
-          data.title ||
-          (previewHost.includes("instagram")
-            ? "Instagram Video"
-            : "TikTok Video"),
+        title,
         thumbnail,
-        durationSeconds:
-          meta.durationSeconds ||
-          data.durationSeconds ||
-          data.duration ||
-          null,
+        durationSeconds,
         formats,
       });
     }

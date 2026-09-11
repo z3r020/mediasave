@@ -230,8 +230,6 @@ export default function UrlVideoDownloader() {
           result?.platform?.toLowerCase() === "instagram"
             ? "mediasave-instagram.mp4"
             : "mediasave-tiktok.mp4";
-        link.target = "_blank";
-        link.rel = "noopener noreferrer";
 
         document.body.appendChild(link);
         link.click();
