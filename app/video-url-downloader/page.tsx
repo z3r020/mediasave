@@ -2,9 +2,16 @@ import type { Metadata } from "next";
 import UrlVideoDownloader from "@/components/UrlVideoDownloader";
 
 export const metadata: Metadata = {
-  title: "Video Downloader",
+  title: "Video Downloader Online",
   description:
-    "Check and process supported video URLs with MediaSave's online video downloader.",
+    "Download supported videos online by URL with MediaSave. Paste a video URL to check and process content you own or have permission to use.",
+  keywords: [
+    "video downloader",
+    "video downloader online",
+    "download video by URL",
+    "online video downloader",
+    "video URL downloader",
+  ],
   alternates: {
     canonical: "/video-url-downloader",
   },
@@ -25,7 +32,8 @@ export default function VideoUrlDownloaderPage() {
         </h1>
 
         <p className="mt-5 text-slate-400">
-          Paste a supported video URL and check it with MediaSave.
+          Paste a supported video URL and download or process your video with
+          MediaSave.
         </p>
       </div>
 
@@ -50,7 +58,7 @@ export default function VideoUrlDownloaderPage() {
               Do I need an account?
             </summary>
             <p className="mt-3 text-sm leading-6 text-slate-400">
-              No MediaSave account is required for this MVP workflow.
+              No MediaSave account is required for this workflow.
             </p>
           </details>
 
