@@ -1,9 +1,9 @@
 export const runtime = "nodejs";
-export const maxDuration = 20;
+export const maxDuration = 60;
 
 const YOINKU_API = "https://yoinku.com/api/v1";
 const PREVIEW_TIMEOUT = 10000;
-const DOWNLOAD_TIMEOUT = 18000;
+const DOWNLOAD_TIMEOUT = 45000;
 
 function isSupportedUrl(rawUrl: string) {
   try {
