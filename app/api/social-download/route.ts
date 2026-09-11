@@ -115,12 +115,24 @@ export async function POST(request: Request) {
             throw new Error("Invalid media URL");
           }
 
+          const filename = currentHost.includes("instagram")
+            ? "mediasave-instagram.mp4"
+            : "mediasave-tiktok.mp4";
+
+          const encodedMediaUrl = Buffer.from(
+            downloadUrl,
+            "utf8"
+          ).toString("base64url");
+
+          const origin = new URL(request.url).origin;
+
           return Response.json({
             ok: true,
-            downloadUrl,
-            filename: currentHost.includes("instagram")
-              ? "mediasave-instagram.mp4"
-              : "mediasave-tiktok.mp4",
+            downloadUrl:
+              `${origin}/api/social-media-download` +
+              `?url=${encodeURIComponent(encodedMediaUrl)}` +
+              `&filename=${encodeURIComponent(filename)}`,
+            filename,
           });
         } catch {
           return Response.json(

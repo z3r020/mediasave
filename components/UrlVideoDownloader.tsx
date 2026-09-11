@@ -18,6 +18,7 @@ type Result = {
 };
 
 const CACHE_KEY = "mediasave-video-preview";
+const ADSTERRA_SMARTLINK = "https://www.profitableratecpmnetwork.com/kc9mtr0t1?key=9257486c60dfeb77e566ea29f7524b03";
 const CACHE_TIME = 5 * 60 * 1000;
 
 function getBestFormat(formats?: Format[]) {
@@ -222,6 +223,14 @@ export default function UrlVideoDownloader() {
             "URL download tidak dapat dibuat."
         );
       }
+
+      // Tampilkan Smartlink Adsterra dari klik user.
+      // Setelah itu lanjutkan proses download.
+      window.open(
+        ADSTERRA_SMARTLINK,
+        "_blank",
+        "noopener,noreferrer"
+      );
 
       if (isDirectPlatform) {
         const link = document.createElement("a");
