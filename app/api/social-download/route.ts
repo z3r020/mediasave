@@ -2,7 +2,8 @@ export const runtime = "nodejs";
 export const maxDuration = 20;
 
 const YOINKU_API = "https://yoinku.com/api/v1";
-const REQUEST_TIMEOUT = 10000;
+const PREVIEW_TIMEOUT = 10000;
+const DOWNLOAD_TIMEOUT = 18000;
 
 function isSupportedUrl(rawUrl: string) {
   try {
@@ -25,13 +26,15 @@ function isSupportedUrl(rawUrl: string) {
 
 async function fetchWithTimeout(
   input: string,
-  init: RequestInit = {}
+  init: RequestInit = {},
+  timeoutMs = PREVIEW_TIMEOUT
 ) {
+
   const controller = new AbortController();
 
   const timeout = setTimeout(() => {
     controller.abort();
-  }, REQUEST_TIMEOUT);
+  }, timeoutMs);
 
   try {
     return await fetch(input, {
@@ -89,12 +92,16 @@ export async function POST(request: Request) {
         `?url=${encodeURIComponent(videoUrl)}` +
         `&format=${encodeURIComponent(formatId)}`;
 
-      const response = await fetchWithTimeout(endpoint, {
-        headers: {
-          "x-api-key": apiKey,
-          Accept: "application/json",
+      const response = await fetchWithTimeout(
+        endpoint,
+        {
+          headers: {
+            "x-api-key": apiKey,
+            Accept: "application/json",
+          },
         },
-      });
+        DOWNLOAD_TIMEOUT
+      );
 
       const data = await response.json().catch(() => null);
 
