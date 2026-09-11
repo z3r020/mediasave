@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import UrlVideoDownloader from "@/components/UrlVideoDownloader";
+import BreadcrumbSchema from "@/components/BreadcrumbSchema";
+import FaqSchema from "@/components/FaqSchema";
 
 export const metadata: Metadata = {
   title: "Video Downloader Online",
@@ -20,6 +22,32 @@ export const metadata: Metadata = {
 export default function VideoUrlDownloaderPage() {
   return (
     <main className="mx-auto max-w-6xl px-4 pb-20 pt-16">
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "/" },
+          { name: "Video Downloader", url: "/video-url-downloader" },
+        ]}
+      />
+
+      <FaqSchema
+        faqs={[
+          {
+            question: "What URLs can I use?",
+            answer:
+              "MediaSave can check supported video URLs. Availability depends on the platform and its permitted access methods.",
+          },
+          {
+            question: "Do I need an account?",
+            answer:
+              "No MediaSave account is required for this workflow.",
+          },
+          {
+            question: "Can I download any video?",
+            answer:
+              "Only download or process content you own or have permission to use. Copyright and platform rules still apply.",
+          },
+        ]}
+      />
       <div className="mx-auto mb-10 max-w-3xl text-center">
         <span className="inline-block rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-xs text-cyan-300">
           VIDEO DOWNLOADER
