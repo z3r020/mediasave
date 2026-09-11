@@ -133,19 +133,24 @@ export async function POST(request: Request) {
      * - platform
      * - resolusi
      */
-    // Fast preview fallback for YouTube.
-    // Yoinku /info can occasionally exceed the Vercel preview timeout,
-    // while the /download endpoint is fast and already verified.
+    // Fast preview fallback for YouTube, TikTok, and Instagram.
+    // We avoid the slow /info request for the initial preview.
     try {
       const parsedVideoUrl = new URL(videoUrl);
       const host = parsedVideoUrl.hostname.toLowerCase();
 
-      let youtubeVideoId: string | null = null;
+      let platform: "youtube" | "tiktok" | "instagram" | null = null;
+      let thumbnail: string | null = null;
 
       if (
         host === "youtu.be" ||
+        host === "youtube.com" ||
         host.endsWith(".youtube.com")
       ) {
+        platform = "youtube";
+
+        let youtubeVideoId: string | null = null;
+
         if (host === "youtu.be") {
           youtubeVideoId =
             parsedVideoUrl.pathname.split("/").filter(Boolean)[0] || null;
@@ -163,15 +168,36 @@ export async function POST(request: Request) {
           youtubeVideoId =
             parsedVideoUrl.pathname.split("/")[2] || null;
         }
+
+        if (youtubeVideoId) {
+          thumbnail =
+            `https://i.ytimg.com/vi/${encodeURIComponent(
+              youtubeVideoId
+            )}/hqdefault.jpg`;
+        }
+      } else if (
+        host === "tiktok.com" ||
+        host.endsWith(".tiktok.com")
+      ) {
+        platform = "tiktok";
+      } else if (
+        host === "instagram.com" ||
+        host.endsWith(".instagram.com")
+      ) {
+        platform = "instagram";
       }
 
-      if (youtubeVideoId) {
+      if (platform) {
         return Response.json({
           ok: true,
-          platform: "youtube",
-          title: "YouTube Video",
-          thumbnail:
-            `https://i.ytimg.com/vi/${encodeURIComponent(youtubeVideoId)}/hqdefault.jpg`,
+          platform,
+          title:
+            platform === "youtube"
+              ? "YouTube Video"
+              : platform === "tiktok"
+                ? "TikTok Video"
+                : "Instagram Video",
+          thumbnail,
           durationSeconds: null,
           formats: [
             {
