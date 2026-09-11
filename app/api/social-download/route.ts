@@ -87,6 +87,49 @@ export async function POST(request: Request) {
      * Hanya dijalankan setelah user memilih resolusi.
      */
     if (typeof formatId === "string" && formatId.trim()) {
+      if (formatId.startsWith("saveapi:")) {
+        try {
+          const currentUrl = new URL(videoUrl);
+          const currentHost = currentUrl.hostname.toLowerCase();
+
+          const allowedHost =
+            currentHost === "tiktok.com" ||
+            currentHost.endsWith(".tiktok.com") ||
+            currentHost === "instagram.com" ||
+            currentHost.endsWith(".instagram.com");
+
+          if (!allowedHost) {
+            return Response.json(
+              { error: "Format download tidak valid." },
+              { status: 400 }
+            );
+          }
+
+          const encoded = formatId.slice("saveapi:".length);
+          const downloadUrl = Buffer.from(
+            encoded,
+            "base64url"
+          ).toString("utf8");
+
+          if (!downloadUrl.startsWith("https://")) {
+            throw new Error("Invalid media URL");
+          }
+
+          return Response.json({
+            ok: true,
+            downloadUrl,
+            filename: currentHost.includes("instagram")
+              ? "mediasave-instagram.mp4"
+              : "mediasave-tiktok.mp4",
+          });
+        } catch {
+          return Response.json(
+            { error: "Format download tidak valid." },
+            { status: 400 }
+          );
+        }
+      }
+
       const endpoint =
         `${YOINKU_API}/download` +
         `?url=${encodeURIComponent(videoUrl)}` +
@@ -133,6 +176,110 @@ export async function POST(request: Request) {
      * - platform
      * - resolusi
      */
+    /*
+     * TikTok + Instagram via SaveAPI/DLGram.
+     * YouTube tetap menggunakan Yoinku.
+     */
+    const previewHost = new URL(videoUrl).hostname.toLowerCase();
+
+    if (
+      previewHost === "tiktok.com" ||
+      previewHost.endsWith(".tiktok.com") ||
+      previewHost === "instagram.com" ||
+      previewHost.endsWith(".instagram.com")
+    ) {
+      const saveApiKey = process.env.SAVEAPI_API_KEY;
+
+      if (!saveApiKey) {
+        return Response.json(
+          { error: "SaveAPI belum dikonfigurasi." },
+          { status: 500 }
+        );
+      }
+
+      const saveApiEndpoint =
+        `https://api.saveapi.org/v1/download?url=${encodeURIComponent(videoUrl)}`;
+
+      const response = await fetchWithTimeout(
+        saveApiEndpoint,
+        {
+          headers: {
+            Authorization: `Bearer ${saveApiKey}`,
+            Accept: "application/json",
+          },
+        },
+        DOWNLOAD_TIMEOUT
+      );
+
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok || !data?.success) {
+        return Response.json(
+          {
+            error:
+              data?.error?.message ||
+              data?.error ||
+              "TikTok/Instagram tidak dapat diproses.",
+          },
+          { status: response.status || 422 }
+        );
+      }
+
+      const medias = Array.isArray(data.medias)
+        ? data.medias
+        : [];
+
+      const videos = medias.filter(
+        (media: any) =>
+          media?.type === "video" &&
+          typeof media?.url === "string" &&
+          media.url.startsWith("https://")
+      );
+
+      if (!videos.length) {
+        return Response.json(
+          { error: "Video tidak tersedia dari provider." },
+          { status: 422 }
+        );
+      }
+
+      const formats = videos.map((media: any, index: number) => {
+        const encodedUrl = Buffer.from(
+          media.url,
+          "utf8"
+        ).toString("base64url");
+
+        return {
+          id: `saveapi:${encodedUrl}`,
+          quality:
+            media?.quality ||
+            media?.label ||
+            (media?.height
+              ? `${media.height}p`
+              : `Video ${index + 1}`),
+          height: media?.height || null,
+          container: media?.ext || "mp4",
+        };
+      });
+
+      const meta = data.meta || {};
+
+      return Response.json({
+        ok: true,
+        platform:
+        data.platform ||
+        (previewHost.includes("instagram") ? "instagram" : "tiktok"),
+        title:
+          meta.title ||
+          (previewHost.includes("instagram")
+            ? "Instagram Video"
+            : "TikTok Video"),
+        thumbnail: meta.thumbnail || null,
+        durationSeconds: meta.durationSeconds || null,
+        formats,
+      });
+    }
+
     // Fast preview fallback for YouTube, TikTok, and Instagram.
     // We avoid the slow /info request for the initial preview.
     try {
