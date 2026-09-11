@@ -20,6 +20,16 @@ type Result = {
 const CACHE_KEY = "mediasave-video-preview";
 const CACHE_TIME = 5 * 60 * 1000;
 
+function getBestFormat(formats?: Format[]) {
+  if (!formats?.length) return null;
+
+  return [...formats].sort((a, b) => {
+    const heightA = a.height ?? 0;
+    const heightB = b.height ?? 0;
+    return heightB - heightA;
+  })[0];
+}
+
 export default function UrlVideoDownloader() {
   const [url, setUrl] = useState("");
   const [error, setError] = useState("");
@@ -47,7 +57,7 @@ export default function UrlVideoDownloader() {
 
         if (parsed.result.formats?.length) {
           setSelectedFormat(
-            parsed.result.formats[0].id
+            getBestFormat(parsed.result.formats)?.id || ""
           );
         }
       }
@@ -105,7 +115,7 @@ export default function UrlVideoDownloader() {
 
           if (parsed.result.formats?.length) {
             setSelectedFormat(
-              parsed.result.formats[0].id
+              getBestFormat(parsed.result.formats)?.id || ""
             );
           }
 
@@ -147,7 +157,7 @@ export default function UrlVideoDownloader() {
 
       if (data?.formats?.length) {
         setSelectedFormat(
-          data.formats[0].id
+          getBestFormat(data.formats)?.id || ""
         );
       }
 
@@ -175,7 +185,11 @@ export default function UrlVideoDownloader() {
   }
 
   async function downloadVideo() {
-    if (!selectedFormat) {
+    const isDirectPlatform =
+      result?.platform?.toLowerCase() === "tiktok" ||
+      result?.platform?.toLowerCase() === "instagram";
+
+    if (!selectedFormat && !isDirectPlatform) {
       setError("Pilih resolusi terlebih dahulu.");
       return;
     }
@@ -193,7 +207,7 @@ export default function UrlVideoDownloader() {
           },
           body: JSON.stringify({
             url: url.trim(),
-            format: selectedFormat,
+            format: selectedFormat || undefined,
           }),
         }
       );
@@ -209,8 +223,22 @@ export default function UrlVideoDownloader() {
         );
       }
 
-      window.location.href =
-        data.downloadUrl;
+      if (isDirectPlatform) {
+        const link = document.createElement("a");
+        link.href = data.downloadUrl;
+        link.download =
+          result?.platform?.toLowerCase() === "instagram"
+            ? "mediasave-instagram.mp4"
+            : "mediasave-tiktok.mp4";
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      } else {
+        window.location.href = data.downloadUrl;
+      }
     } catch (err) {
       setError(
         err instanceof Error
@@ -221,6 +249,10 @@ export default function UrlVideoDownloader() {
       setDownloading(false);
     }
   }
+
+  const isDirectDownloadPlatform =
+    result?.platform?.toLowerCase() === "tiktok" ||
+    result?.platform?.toLowerCase() === "instagram";
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -325,7 +357,8 @@ export default function UrlVideoDownloader() {
               </p>
             )}
 
-            {result.formats &&
+            {!isDirectDownloadPlatform &&
+              result.formats &&
               result.formats.length > 0 && (
                 <div className="mt-6">
                   <h3 className="mb-3 text-sm font-semibold text-slate-300">
