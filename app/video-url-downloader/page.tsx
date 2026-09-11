@@ -40,6 +40,55 @@ export default function VideoUrlDownloaderPage() {
       <UrlVideoDownloader />
 
       <section className="mx-auto mt-12 max-w-3xl">
+        <h2 className="text-2xl font-bold">More MediaSave Tools</h2>
+        <p className="mt-3 text-sm leading-6 text-slate-400">
+          Explore more free online media tools from MediaSave.
+        </p>
+
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <a
+            href="/tiktok-video-downloader"
+            className="rounded-2xl border border-white/10 bg-white/[0.025] p-5 transition hover:border-cyan-400/30"
+          >
+            <h3 className="font-semibold">TikTok Video Downloader</h3>
+            <p className="mt-2 text-sm text-slate-400">
+              Download supported TikTok videos from a URL.
+            </p>
+          </a>
+
+          <a
+            href="/instagram-video-downloader"
+            className="rounded-2xl border border-white/10 bg-white/[0.025] p-5 transition hover:border-cyan-400/30"
+          >
+            <h3 className="font-semibold">Instagram Video Downloader</h3>
+            <p className="mt-2 text-sm text-slate-400">
+              Process supported Instagram videos and Reels.
+            </p>
+          </a>
+
+          <a
+            href="/youtube-video-downloader"
+            className="rounded-2xl border border-white/10 bg-white/[0.025] p-5 transition hover:border-cyan-400/30"
+          >
+            <h3 className="font-semibold">YouTube Video Downloader</h3>
+            <p className="mt-2 text-sm text-slate-400">
+              Process supported YouTube video URLs.
+            </p>
+          </a>
+
+          <a
+            href="/video-downloader"
+            className="rounded-2xl border border-white/10 bg-white/[0.025] p-5 transition hover:border-cyan-400/30"
+          >
+            <h3 className="font-semibold">Video Converter</h3>
+            <p className="mt-2 text-sm text-slate-400">
+              Convert video files between supported formats.
+            </p>
+          </a>
+        </div>
+      </section>
+
+      <section className="mx-auto mt-12 max-w-3xl">
         <h2 className="text-2xl font-bold">Video Downloader FAQ</h2>
 
         <div className="mt-5 space-y-3">
