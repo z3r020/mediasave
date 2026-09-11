@@ -296,10 +296,31 @@ export async function POST(request: Request) {
           media.url.startsWith("https://")
       );
 
+      const isImageUrl = (value: unknown) => {
+        if (typeof value !== "string" || !value.startsWith("https://")) {
+          return false;
+        }
+
+        try {
+          const parsed = new URL(value);
+          const path = parsed.pathname.toLowerCase();
+
+          return (
+            path.endsWith(".jpg") ||
+            path.endsWith(".jpeg") ||
+            path.endsWith(".png") ||
+            path.endsWith(".webp") ||
+            path.endsWith(".gif")
+          );
+        } catch {
+          return false;
+        }
+      };
+
       const thumbnail =
-        meta.thumbnail ||
-        data.thumbnail ||
-        imageMedia?.url ||
+        (isImageUrl(meta.thumbnail) && meta.thumbnail) ||
+        (isImageUrl(data.thumbnail) && data.thumbnail) ||
+        (isImageUrl(imageMedia?.url) && imageMedia.url) ||
         null;
 
       return Response.json({

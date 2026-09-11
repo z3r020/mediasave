@@ -272,20 +272,47 @@ export default function UrlVideoDownloader() {
         {result && (
           <div className="mt-6">
 
-            {result.thumbnail && (
-              <div className="overflow-hidden rounded-2xl border border-white/10">
-                <img
-                  src={result.thumbnail}
-                  alt={
-                    result.title ||
-                    "Video thumbnail"
-                  }
-                  className="max-h-96 w-full object-cover"
-                  loading="eager"
-                />
-              </div>
-            )}
+            {result.thumbnail &&
+              (() => {
+                let isVideo = false;
 
+                try {
+                  const thumbnailUrl = new URL(result.thumbnail);
+                  isVideo = /\.(mp4|webm|mov)$/i.test(thumbnailUrl.pathname);
+                } catch {
+                  isVideo = false;
+                }
+
+                const previewUrl = isVideo
+                  ? result.thumbnail
+                  : `/api/social-thumbnail?url=${encodeURIComponent(
+                      result.thumbnail
+                    )}`;
+
+                return (
+                  <div className="overflow-hidden rounded-2xl border border-white/10 bg-black">
+                    {isVideo ? (
+                      <video
+                        src={previewUrl}
+                        className="max-h-96 w-full object-contain"
+                        muted
+                        playsInline
+                        autoPlay
+                        loop
+                        controls
+                        preload="metadata"
+                      />
+                    ) : (
+                      <img
+                        src={previewUrl}
+                        alt={result.title || "Video thumbnail"}
+                        className="max-h-96 w-full object-cover"
+                        loading="eager"
+                      />
+                    )}
+                  </div>
+                );
+              })()}
             {result.title && (
               <h2 className="mt-5 text-lg font-bold text-white">
                 {result.title}
