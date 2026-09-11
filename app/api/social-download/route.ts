@@ -133,6 +133,78 @@ export async function POST(request: Request) {
      * - platform
      * - resolusi
      */
+    // Fast preview fallback for YouTube.
+    // Yoinku /info can occasionally exceed the Vercel preview timeout,
+    // while the /download endpoint is fast and already verified.
+    try {
+      const parsedVideoUrl = new URL(videoUrl);
+      const host = parsedVideoUrl.hostname.toLowerCase();
+
+      let youtubeVideoId: string | null = null;
+
+      if (
+        host === "youtu.be" ||
+        host.endsWith(".youtube.com")
+      ) {
+        if (host === "youtu.be") {
+          youtubeVideoId =
+            parsedVideoUrl.pathname.split("/").filter(Boolean)[0] || null;
+        } else if (parsedVideoUrl.searchParams.get("v")) {
+          youtubeVideoId =
+            parsedVideoUrl.searchParams.get("v");
+        } else if (
+          parsedVideoUrl.pathname.startsWith("/shorts/")
+        ) {
+          youtubeVideoId =
+            parsedVideoUrl.pathname.split("/")[2] || null;
+        } else if (
+          parsedVideoUrl.pathname.startsWith("/embed/")
+        ) {
+          youtubeVideoId =
+            parsedVideoUrl.pathname.split("/")[2] || null;
+        }
+      }
+
+      if (youtubeVideoId) {
+        return Response.json({
+          ok: true,
+          platform: "youtube",
+          title: "YouTube Video",
+          thumbnail:
+            `https://i.ytimg.com/vi/${encodeURIComponent(youtubeVideoId)}/hqdefault.jpg`,
+          durationSeconds: null,
+          formats: [
+            {
+              id: "v-1080",
+              quality: "1080p",
+              height: 1080,
+              container: "mp4",
+            },
+            {
+              id: "v-720",
+              quality: "720p",
+              height: 720,
+              container: "mp4",
+            },
+            {
+              id: "v-480",
+              quality: "480p",
+              height: 480,
+              container: "mp4",
+            },
+            {
+              id: "v-360",
+              quality: "360p",
+              height: 360,
+              container: "mp4",
+            },
+          ],
+        });
+      }
+    } catch {
+      // Fall through to the normal provider preview.
+    }
+
     const endpoint =
       `${YOINKU_API}/info?url=${encodeURIComponent(videoUrl)}`;
 
