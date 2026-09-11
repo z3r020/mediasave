@@ -229,53 +229,98 @@ export async function POST(request: Request) {
         ? data.medias
         : [];
 
-      const videos = medias.filter(
-        (media: any) =>
-          media?.type === "video" &&
-          typeof media?.url === "string" &&
-          media.url.startsWith("https://")
-      );
+      const providerFormats = Array.isArray(data.formats)
+        ? data.formats
+        : [];
 
-      if (!videos.length) {
+      /*
+       * Gunakan formats[] jika provider menyediakan beberapa resolusi.
+       * Jika tidak, fallback ke medias[].
+       */
+      const formatSources = providerFormats.length
+        ? providerFormats
+        : medias.filter(
+            (media: any) =>
+              media?.type === "video" &&
+              typeof media?.url === "string" &&
+              media.url.startsWith("https://")
+          );
+
+      const formats = formatSources
+        .filter(
+          (media: any) =>
+            typeof media?.url === "string" &&
+            media.url.startsWith("https://")
+        )
+        .map((media: any, index: number) => {
+          const encodedUrl = Buffer.from(
+            media.url,
+            "utf8"
+          ).toString("base64url");
+
+          const height =
+            media?.height ||
+            media?.resolution ||
+            null;
+
+          return {
+            id: `saveapi:${encodedUrl}`,
+            quality:
+              media?.label ||
+              media?.quality ||
+              (typeof height === "number"
+                ? `${height}p`
+                : `Video ${index + 1}`),
+            height:
+              typeof height === "number"
+                ? height
+                : null,
+            container: media?.ext || "mp4",
+            sizeMb: media?.size_mb || null,
+          };
+        });
+
+      if (!formats.length) {
         return Response.json(
           { error: "Video tidak tersedia dari provider." },
           { status: 422 }
         );
       }
 
-      const formats = videos.map((media: any, index: number) => {
-        const encodedUrl = Buffer.from(
-          media.url,
-          "utf8"
-        ).toString("base64url");
-
-        return {
-          id: `saveapi:${encodedUrl}`,
-          quality:
-            media?.quality ||
-            media?.label ||
-            (media?.height
-              ? `${media.height}p`
-              : `Video ${index + 1}`),
-          height: media?.height || null,
-          container: media?.ext || "mp4",
-        };
-      });
-
       const meta = data.meta || {};
+
+      const imageMedia = medias.find(
+        (media: any) =>
+          media?.type === "image" &&
+          typeof media?.url === "string" &&
+          media.url.startsWith("https://")
+      );
+
+      const thumbnail =
+        meta.thumbnail ||
+        data.thumbnail ||
+        imageMedia?.url ||
+        null;
 
       return Response.json({
         ok: true,
         platform:
-        data.platform ||
-        (previewHost.includes("instagram") ? "instagram" : "tiktok"),
+          data.platform ||
+          (previewHost.includes("instagram")
+            ? "instagram"
+            : "tiktok"),
         title:
           meta.title ||
+          data.title ||
           (previewHost.includes("instagram")
             ? "Instagram Video"
             : "TikTok Video"),
-        thumbnail: meta.thumbnail || null,
-        durationSeconds: meta.durationSeconds || null,
+        thumbnail,
+        durationSeconds:
+          meta.durationSeconds ||
+          data.durationSeconds ||
+          data.duration ||
+          null,
         formats,
       });
     }
