@@ -2,7 +2,7 @@ export const runtime = "nodejs";
 export const maxDuration = 20;
 
 const YOINKU_API = "https://yoinku.com/api/v1";
-const REQUEST_TIMEOUT = 25000;
+const REQUEST_TIMEOUT = 10000;
 
 function isSupportedUrl(rawUrl: string) {
   try {
