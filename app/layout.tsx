@@ -78,6 +78,11 @@ export default function RootLayout({
           data-zone="11782300"
           strategy="afterInteractive"
         />
+        <Script
+          src="https://nap5k.com/tag.min.js"
+          data-zone="11782298"
+          strategy="afterInteractive"
+        />
         <Header />
         <main>{children}</main>
         <Footer />
