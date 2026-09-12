@@ -23,4 +23,36 @@ export default function Home(){return <div><section className="max-w-6xl mx-auto
 </a>
 </div>
 </section>
+<section className="max-w-6xl mx-auto px-4 pb-12">
+<h2 className="text-2xl font-bold text-center">Media Tools & Guides</h2>
+<p className="mt-3 text-slate-400 text-center max-w-2xl mx-auto">
+Use MediaSave to download supported videos, convert your own media files, compress videos, and learn more from our practical media guides.
+</p>
+<div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+<a href="/video-url-downloader" className="rounded-xl border border-slate-800 bg-slate-900/50 p-5 hover:border-cyan-400/40 transition">
+<h3 className="font-bold">Video Downloader</h3>
+<p className="mt-2 text-sm text-slate-400">Download supported videos by URL for content you own or have permission to use.</p>
+</a>
+<a href="/video-downloader" className="rounded-xl border border-slate-800 bg-slate-900/50 p-5 hover:border-cyan-400/40 transition">
+<h3 className="font-bold">Video Converter</h3>
+<p className="mt-2 text-sm text-slate-400">Convert your own video files to supported formats such as MP4, WEBM, and MOV.</p>
+</a>
+<a href="/compress-video" className="rounded-xl border border-slate-800 bg-slate-900/50 p-5 hover:border-cyan-400/40 transition">
+<h3 className="font-bold">Video Compressor</h3>
+<p className="mt-2 text-sm text-slate-400">Reduce the size of your own video files with MediaSave.</p>
+</a>
+<a href="/audio-converter" className="rounded-xl border border-slate-800 bg-slate-900/50 p-5 hover:border-cyan-400/40 transition">
+<h3 className="font-bold">Audio Converter</h3>
+<p className="mt-2 text-sm text-slate-400">Convert or extract audio from your own supported media files.</p>
+</a>
+<a href="/image-converter" className="rounded-xl border border-slate-800 bg-slate-900/50 p-5 hover:border-cyan-400/40 transition">
+<h3 className="font-bold">Image Converter</h3>
+<p className="mt-2 text-sm text-slate-400">Convert your own JPG, PNG, and WEBP images online.</p>
+</a>
+<a href="/blog" className="rounded-xl border border-slate-800 bg-slate-900/50 p-5 hover:border-cyan-400/40 transition">
+<h3 className="font-bold">Media Guides</h3>
+<p className="mt-2 text-sm text-slate-400">Read practical guides about video conversion, compression, formats, and image conversion.</p>
+</a>
+</div>
+</section>
 <section className="max-w-4xl mx-auto px-4 pb-20 text-center"><h2 className="text-2xl font-bold">Launch free, upgrade later</h2><p className="mt-3 text-slate-400">Start with the free Vercel deployment for your website, SEO and content. Add dedicated media processing when traffic grows.</p></section></div>}
