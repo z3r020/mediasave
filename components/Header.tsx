@@ -9,7 +9,7 @@ export default function Header() {
           className="group flex items-center gap-2 text-xl font-black tracking-tight"
         >
           <img
-            src="/mediasave-logo.png"
+            src="/icon.png"
             alt="MediaSave"
             className="h-10 w-auto object-contain transition group-hover:scale-105"
           />
