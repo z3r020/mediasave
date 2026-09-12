@@ -6,9 +6,16 @@ export default function Header() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
         <Link
           href="/"
-          className="group text-xl font-black tracking-tight"
+          className="group flex items-center gap-2 text-xl font-black tracking-tight"
         >
-          Media<span className="text-cyan-400 transition group-hover:text-cyan-300">Save</span>
+          <img
+            src="/mediasave-logo.png"
+            alt="MediaSave"
+            className="h-10 w-auto object-contain transition group-hover:scale-105"
+          />
+          <span>
+            Media<span className="text-cyan-400 transition group-hover:text-cyan-300">Save</span>
+          </span>
         </Link>
 
         <nav className="hidden items-center gap-1 sm:flex">
