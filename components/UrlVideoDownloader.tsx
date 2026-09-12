@@ -17,7 +17,7 @@ type Result = {
   formats?: Format[];
 };
 
-const CACHE_KEY = "mediasave-video-preview";
+const CACHE_KEY = "mediasave-video-preview-v2";
 const ADSTERRA_SMARTLINK = "https://www.profitableratecpmnetwork.com/kc9mtr0t1?key=9257486c60dfeb77e566ea29f7524b03";
 const CACHE_TIME = 5 * 60 * 1000;
 
@@ -31,7 +31,11 @@ function getBestFormat(formats?: Format[]) {
   })[0];
 }
 
-export default function UrlVideoDownloader() {
+export default function UrlVideoDownloader({
+  platform,
+}: {
+  platform?: "TikTok" | "YouTube" | "Instagram";
+}) {
   const [url, setUrl] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -263,6 +267,16 @@ export default function UrlVideoDownloader() {
 
   return (
     <div className="mx-auto max-w-3xl">
+      {platform && (
+        <div className="mb-6 text-center">
+          <h1 className="text-3xl font-bold text-white">
+            {platform} Video Downloader
+          </h1>
+          <p className="mt-2 text-gray-400">
+            Download supported {platform} videos online with MediaSave.
+          </p>
+        </div>
+      )}
       <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-6 shadow-2xl backdrop-blur-xl sm:p-8">
 
         <div className="flex flex-col gap-4 sm:flex-row">

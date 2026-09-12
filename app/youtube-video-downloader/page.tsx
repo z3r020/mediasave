@@ -65,7 +65,7 @@ export default function YouTubeVideoDownloaderPage() {
         }
       />
 
-      <UrlVideoDownloader />
+      <UrlVideoDownloader platform="YouTube" />
 
       <section className="mx-auto max-w-5xl px-4 pb-16">
         <div className="mx-auto max-w-3xl rounded-3xl border border-white/10 bg-black/10 p-6 backdrop-blur-md">
