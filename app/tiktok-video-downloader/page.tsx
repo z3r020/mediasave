@@ -16,6 +16,20 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/tiktok-video-downloader",
   },
+  openGraph: {
+    title: "TikTok Video Downloader Online",
+    description:
+      "Download TikTok videos online with MediaSave. Paste a supported TikTok video URL and process content you own or have permission to use.",
+    url: "/tiktok-video-downloader",
+    siteName: "MediaSave",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "TikTok Video Downloader Online",
+    description:
+      "Download TikTok videos online with MediaSave. Paste a supported TikTok video URL and process content you own or have permission to use.",
+  },
 };
 
 export default function TikTokVideoDownloaderPage() {

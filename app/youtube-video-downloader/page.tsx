@@ -16,6 +16,20 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/youtube-video-downloader",
   },
+  openGraph: {
+    title: "YouTube Video Downloader Online",
+    description:
+      "Download supported YouTube videos online with MediaSave. Paste a YouTube video URL and process content you own or have permission to use.",
+    url: "/youtube-video-downloader",
+    siteName: "MediaSave",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "YouTube Video Downloader Online",
+    description:
+      "Download supported YouTube videos online with MediaSave. Paste a YouTube video URL and process content you own or have permission to use.",
+  },
 };
 
 export default function YouTubeVideoDownloaderPage() {

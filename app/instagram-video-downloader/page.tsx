@@ -16,6 +16,20 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/instagram-video-downloader",
   },
+  openGraph: {
+    title: "Instagram Video Downloader Online",
+    description:
+      "Download Instagram videos online with MediaSave. Paste a supported Instagram Reel or video URL and process content you own or have permission to use.",
+    url: "/instagram-video-downloader",
+    siteName: "MediaSave",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Instagram Video Downloader Online",
+    description:
+      "Download Instagram videos online with MediaSave. Paste a supported Instagram Reel or video URL and process content you own or have permission to use.",
+  },
 };
 
 export default function InstagramVideoDownloaderPage() {
