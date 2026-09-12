@@ -44,20 +44,25 @@ export default function YouTubeVideoDownloaderPage() {
       />
 
       <FaqSchema
-        faqs={[
-          {
-            question: "What URLs can I use?",
-            answer: "Use a supported YouTube video URL. Availability depends on the platform and its permitted access methods.",
-          },
-          {
-            question: "Do I need an account?",
-            answer: "No MediaSave account is required for this workflow.",
-          },
-          {
-            question: "Can I download any YouTube video?",
-            answer: "Only download or process content you own or have permission to use. Copyright and platform rules still apply.",
-          }
-        ]}
+        faqs={
+          [
+            {
+              question: "Is this YouTube downloader free?",
+              answer:
+                "MediaSave provides free online media tools. Availability of actual platform downloads depends on supported and permitted processing methods.",
+            },
+            {
+              question: "Can I download any YouTube video?",
+              answer:
+                "You should only download or process content that you own or have permission to use. Platform terms and copyright rules may apply.",
+            },
+            {
+              question: "Does MediaSave store my YouTube videos?",
+              answer:
+                "MediaSave is designed around processing user-authorized media. Do not submit content unless you have the necessary rights or permission.",
+            },
+          ]
+        }
       />
 
       <PlatformDownloader
@@ -101,27 +106,7 @@ export default function YouTubeVideoDownloaderPage() {
           </p>
         </div>
       </section>
-
-      <section className="mx-auto max-w-3xl px-4 pb-16">
-        <h2 className="text-2xl font-bold">Frequently Asked Questions</h2>
-
-        <div className="mt-5 space-y-3">
-          <details className="rounded-2xl border border-white/10 bg-white/[0.025] p-5">
-            <summary className="cursor-pointer font-semibold">What URLs can I use?</summary>
-            <p className="mt-3 text-sm leading-6 text-slate-400">Use a supported YouTube video URL. Availability depends on the platform and its permitted access methods.</p>
-          </details>
-          <details className="rounded-2xl border border-white/10 bg-white/[0.025] p-5">
-            <summary className="cursor-pointer font-semibold">Do I need an account?</summary>
-            <p className="mt-3 text-sm leading-6 text-slate-400">No MediaSave account is required for this workflow.</p>
-          </details>
-          <details className="rounded-2xl border border-white/10 bg-white/[0.025] p-5">
-            <summary className="cursor-pointer font-semibold">Can I download any YouTube video?</summary>
-            <p className="mt-3 text-sm leading-6 text-slate-400">Only download or process content you own or have permission to use. Copyright and platform rules still apply.</p>
-          </details>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-3xl px-4 pb-20">
+<section className="mx-auto max-w-3xl px-4 pb-20">
         <h2 className="text-2xl font-bold">More Video Downloaders</h2>
 
         <ul className="mt-5 space-y-3">
