@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import PlatformDownloader from "@/components/PlatformDownloader";
+import UrlVideoDownloader from "@/components/UrlVideoDownloader";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import FaqSchema from "@/components/FaqSchema";
 
@@ -65,11 +65,7 @@ export default function YouTubeVideoDownloaderPage() {
         }
       />
 
-      <PlatformDownloader
-        platform="YouTube"
-        description="Paste a YouTube video URL and use MediaSave tools for content you own or have permission to process."
-        placeholder="https://www.youtube.com/watch?v=..."
-      />
+      <UrlVideoDownloader />
 
       <section className="mx-auto max-w-5xl px-4 pb-16">
         <div className="mx-auto max-w-3xl rounded-3xl border border-white/10 bg-black/10 p-6 backdrop-blur-md">
