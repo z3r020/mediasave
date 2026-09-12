@@ -353,8 +353,13 @@ export default function UrlVideoDownloader() {
                 );
               })()}
             {result.title && (
-              <h2 className="mt-5 text-lg font-bold text-white">
-                {result.title}
+              <h2
+                className="mt-5 max-w-full overflow-hidden text-ellipsis text-lg font-bold text-white"
+                title={result.title}
+              >
+                {result.title.length > 80
+                  ? `${result.title.slice(0, 80).trimEnd()}…`
+                  : result.title}
               </h2>
             )}
 

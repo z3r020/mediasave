@@ -4,6 +4,101 @@ export const maxDuration = 60;
 const YOINKU_API = "https://yoinku.com/api/v1";
 const PREVIEW_TIMEOUT = 10000;
 const DOWNLOAD_TIMEOUT = 45000;
+const META_TIMEOUT = 8000;
+
+async function getPageMetadata(rawUrl: string) {
+  try {
+    const response = await fetchWithTimeout(rawUrl, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 Chrome/131 Mobile Safari/537.36",
+        Accept: "text/html,application/xhtml+xml",
+      },
+    });
+
+    if (!response.ok) return { title: null, thumbnail: null };
+
+    const html = await response.text();
+
+    const getMeta = (property: string) => {
+      const escaped = property.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+      const patterns = [
+        new RegExp(
+          `<meta[^>]+(?:property|name)=["']${escaped}["'][^>]+content=["']([^"']+)["']`,
+          "i"
+        ),
+        new RegExp(
+          `<meta[^>]+content=["']([^"']+)["'][^>]+(?:property|name)=["']${escaped}["']`,
+          "i"
+        ),
+      ];
+
+      for (const pattern of patterns) {
+        const match = html.match(pattern);
+        if (match?.[1]) {
+          return match[1]
+            .replace(/&amp;/g, "&")
+            .replace(/&quot;/g, '"')
+            .replace(/&#39;/g, "'")
+            .trim();
+        }
+      }
+
+      return null;
+    };
+
+    const title =
+      getMeta("og:title") ||
+      getMeta("twitter:title") ||
+      null;
+
+    const thumbnail =
+      getMeta("og:image") ||
+      getMeta("twitter:image") ||
+      null;
+
+    return { title, thumbnail };
+  } catch {
+    return { title: null, thumbnail: null };
+  }
+}
+
+async function getYouTubeMetadata(rawUrl: string) {
+  try {
+    const endpoint =
+      `https://www.youtube.com/oembed?url=${encodeURIComponent(rawUrl)}&format=json`;
+
+    const response = await fetchWithTimeout(endpoint, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 Chrome/131 Mobile Safari/537.36",
+        Accept: "application/json",
+      },
+    });
+
+    const data = await response.json().catch(() => null);
+
+    if (!response.ok || !data) {
+      return { title: null, thumbnail: null };
+    }
+
+    return {
+      title:
+        typeof data.title === "string" && data.title.trim()
+          ? data.title.trim()
+          : null,
+      thumbnail:
+        typeof data.thumbnail_url === "string" &&
+        data.thumbnail_url.trim()
+          ? data.thumbnail_url.trim()
+          : null,
+    };
+  } catch {
+    return { title: null, thumbnail: null };
+  }
+}
+
 
 function isSupportedUrl(rawUrl: string) {
   try {
@@ -435,16 +530,35 @@ export async function POST(request: Request) {
       }
 
       if (platform) {
+        let metadata = {
+          title: null as string | null,
+          thumbnail: null as string | null,
+        };
+
+        if (platform === "youtube") {
+          metadata = await getYouTubeMetadata(videoUrl);
+        } else {
+          metadata = await getPageMetadata(videoUrl);
+        }
+
+        const finalTitle =
+          metadata.title ||
+          (platform === "youtube"
+            ? "YouTube Video"
+            : platform === "tiktok"
+              ? "TikTok Video"
+              : "Instagram Video");
+
+        const finalThumbnail =
+          metadata.thumbnail ||
+          thumbnail ||
+          null;
+
         return Response.json({
           ok: true,
           platform,
-          title:
-            platform === "youtube"
-              ? "YouTube Video"
-              : platform === "tiktok"
-                ? "TikTok Video"
-                : "Instagram Video",
-          thumbnail,
+          title: finalTitle,
+          thumbnail: finalThumbnail,
           durationSeconds: null,
           formats: [
             {
