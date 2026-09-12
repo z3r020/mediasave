@@ -100,6 +100,36 @@ export default function UrlVideoDownloader({
       return;
     }
 
+    const host = parsedUrl.hostname.toLowerCase();
+
+    const isTikTokUrl =
+      host === "tiktok.com" ||
+      host.endsWith(".tiktok.com");
+
+    const isYouTubeUrl =
+      host === "youtube.com" ||
+      host.endsWith(".youtube.com") ||
+      host === "youtu.be";
+
+    const isInstagramUrl =
+      host === "instagram.com" ||
+      host.endsWith(".instagram.com");
+
+    if (platform === "TikTok" && !isTikTokUrl) {
+      setError("URL tidak valid. Gunakan URL video TikTok.");
+      return;
+    }
+
+    if (platform === "YouTube" && !isYouTubeUrl) {
+      setError("URL tidak valid. Gunakan URL video YouTube.");
+      return;
+    }
+
+    if (platform === "Instagram" && !isInstagramUrl) {
+      setError("URL tidak valid. Gunakan URL video Instagram.");
+      return;
+    }
+
     /*
      * Cache:
      * URL yang sama dalam 5 menit tidak perlu
@@ -293,7 +323,11 @@ export default function UrlVideoDownloader({
                 analyzeVideo();
               }
             }}
-            placeholder="Paste URL YouTube, TikTok, atau Instagram"
+            placeholder={
+              platform
+                ? `Paste URL video ${platform}`
+                : "Paste URL YouTube, TikTok, atau Instagram"
+            }
             className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-4 text-white outline-none placeholder:text-slate-500 focus:border-cyan-400/40"
           />
 
@@ -336,11 +370,28 @@ export default function UrlVideoDownloader({
                   isVideo = false;
                 }
 
-                const previewUrl = isVideo
-                  ? result.thumbnail
-                  : `/api/social-thumbnail?url=${encodeURIComponent(
-                      result.thumbnail
-                    )}`;
+                const isYouTubeThumbnail =
+                  (() => {
+                    try {
+                      const thumbnailUrl = new URL(result.thumbnail);
+                      const thumbnailHost =
+                        thumbnailUrl.hostname.toLowerCase();
+
+                      return (
+                        thumbnailHost === "i.ytimg.com" ||
+                        thumbnailHost === "img.youtube.com"
+                      );
+                    } catch {
+                      return false;
+                    }
+                  })();
+
+                const previewUrl =
+                  isVideo || isYouTubeThumbnail
+                    ? result.thumbnail
+                    : `/api/social-thumbnail?url=${encodeURIComponent(
+                        result.thumbnail
+                      )}`;
 
                 return (
                   <div className="overflow-hidden rounded-2xl border border-white/10 bg-black">
