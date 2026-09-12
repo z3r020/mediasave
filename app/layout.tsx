@@ -2,6 +2,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import type { Metadata } from "next";
+import Script from "next/script";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ||
@@ -72,6 +73,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <Script
+          src="https://n6wxm.com/vignette.min.js"
+          data-zone="11782300"
+          strategy="afterInteractive"
+        />
         <Header />
         <main>{children}</main>
         <Footer />
