@@ -156,6 +156,7 @@ export async function POST(request: Request) {
     const body = await request.json().catch(() => null);
     const rawUrl = body?.url;
     const formatId = body?.format;
+    const downloadRequested = body?.download === true;
 
     if (typeof rawUrl !== "string" || !rawUrl.trim()) {
       return Response.json(
@@ -174,6 +175,121 @@ export async function POST(request: Request) {
         },
         { status: 400 }
       );
+    }
+
+    /*
+     * DIRECT DOWNLOAD MODE
+     *
+     * Digunakan ketika preview Instagram/TikTok berhasil
+     * mendapatkan metadata tetapi provider tidak menyediakan
+     * format preview. SaveAPI dipanggil hanya saat user
+     * benar-benar menekan tombol download.
+     */
+    if (downloadRequested) {
+      const currentUrl = new URL(videoUrl);
+      const currentHost = currentUrl.hostname.toLowerCase();
+
+      const isTikTok =
+        currentHost === "tiktok.com" ||
+        currentHost.endsWith(".tiktok.com");
+
+      const isInstagram =
+        currentHost === "instagram.com" ||
+        currentHost.endsWith(".instagram.com");
+
+      if (!isTikTok && !isInstagram) {
+        return Response.json(
+          { error: "Mode download langsung hanya tersedia untuk TikTok dan Instagram." },
+          { status: 400 }
+        );
+      }
+
+      const saveApiKey = process.env.SAVEAPI_API_KEY;
+
+      if (!saveApiKey) {
+        return Response.json(
+          { error: "SaveAPI belum dikonfigurasi." },
+          { status: 500 }
+        );
+      }
+
+      const saveApiEndpoint =
+        `https://api.saveapi.org/v1/download?url=${encodeURIComponent(videoUrl)}`;
+
+      const response = await fetchWithTimeout(
+        saveApiEndpoint,
+        {
+          headers: {
+            Authorization: `Bearer ${saveApiKey}`,
+            Accept: "application/json",
+          },
+        },
+        DOWNLOAD_TIMEOUT
+      );
+
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok || !data?.success) {
+        return Response.json(
+          {
+            error:
+              data?.error?.message ||
+              data?.error?.code ||
+              "Instagram tidak dapat diunduh dari provider saat ini.",
+          },
+          { status: response.status || 422 }
+        );
+      }
+
+      const medias = Array.isArray(data.medias)
+        ? data.medias
+        : [];
+
+      const videoMedia = medias.find(
+        (media: any) =>
+          media?.type === "video" &&
+          typeof media?.url === "string" &&
+          media.url.startsWith("https://")
+      );
+
+      const directUrl =
+        videoMedia?.url ||
+        (Array.isArray(data.formats)
+          ? data.formats.find(
+              (media: any) =>
+                media?.type === "video" &&
+                typeof media?.url === "string" &&
+                media.url.startsWith("https://")
+            )?.url
+          : null);
+
+      if (!directUrl) {
+        return Response.json(
+          { error: "Provider tidak mengembalikan file video." },
+          { status: 422 }
+        );
+      }
+
+      const encodedMediaUrl = Buffer.from(
+        directUrl,
+        "utf8"
+      ).toString("base64url");
+
+      const origin = new URL(request.url).origin;
+
+      return Response.json({
+        ok: true,
+        downloadUrl:
+          `${origin}/api/social-media-download?url=${encodeURIComponent(encodedMediaUrl)}&filename=${encodeURIComponent(
+            isInstagram
+              ? "mediasave-instagram.mp4"
+              : "mediasave-tiktok.mp4"
+          )}`,
+        filename:
+          isInstagram
+            ? "mediasave-instagram.mp4"
+            : "mediasave-tiktok.mp4",
+      });
     }
 
     /*
@@ -321,6 +437,25 @@ export async function POST(request: Request) {
       const data = await response.json().catch(() => null);
 
       if (!response.ok || !data?.success) {
+        if (
+          previewHost === "instagram.com" ||
+          previewHost.endsWith(".instagram.com")
+        ) {
+          const metadata = await getPageMetadata(videoUrl);
+
+          if (metadata.title || metadata.thumbnail) {
+            return Response.json({
+              ok: true,
+              platform: "instagram",
+              title: metadata.title || "Instagram Video",
+              thumbnail: metadata.thumbnail || null,
+              durationSeconds: null,
+              formats: [],
+              previewOnly: true,
+            });
+          }
+        }
+
         return Response.json(
           {
             error:

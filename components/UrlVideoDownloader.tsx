@@ -243,6 +243,7 @@ export default function UrlVideoDownloader({
           body: JSON.stringify({
             url: url.trim(),
             format: selectedFormat || undefined,
+            download: isDirectPlatform && !selectedFormat,
           }),
         }
       );
@@ -481,12 +482,14 @@ export default function UrlVideoDownloader({
               onClick={downloadVideo}
               disabled={
                 downloading ||
-                !selectedFormat
+                (!isDirectDownloadPlatform && !selectedFormat)
               }
               className="mt-6 w-full rounded-2xl bg-cyan-400 px-6 py-4 font-bold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {downloading
                 ? "Preparing Download..."
+                : isDirectDownloadPlatform
+                ? "Get Video"
                 : "Download Video"}
             </button>
           </div>
