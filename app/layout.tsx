@@ -42,6 +42,9 @@ export const metadata: Metadata = {
 
   verification: {
     google: "m1X44tBm395liU-b9IerpIPJceWLIPEqLAA6aS8LAc4",
+    other: {
+      monetag: "f6584086c99737714912a809a493bd53",
+    },
   },
 
   openGraph: {
